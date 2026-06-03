@@ -18,35 +18,34 @@ type mask = {
   pubkey: string;
   liquidity: {
     mintPubkey: string;
-    mintDecimals: BigInt;
-    availableAmount: BigInt;
-    borrowedAmountSf: BigInt;
-  },
+    mintDecimals: bigint;
+    availableAmount: bigint;
+    borrowedAmountSf: bigint;
+  };
   metrics: {
     total: number;
     borrowed: number;
     available: number;
     utilization: number;
     tvl: number;
-  },
+  };
 };
 
-//CALCULATION FUNCTIONS 
+// CALCULATION FUNCTIONS
 
-function borrowed(borrowed: BigInt): number{
-  return Number(borrowed) / (2**60);
+function borrowed(raw: bigint): number {
+  return Number(raw) / 2 ** 60 / 10 ** 8;
 }
 
-function available(raw: BigInt, decimals: BigInt): number{
-  console.log(Number(raw))
-  return Number(raw) / (10 ** Number(decimals));
+function available(raw: bigint, decimals: number): number {
+  return Number(raw) / 10 ** decimals;
 }
 
-function utilization(borrowed: number, available: number): number{
+function utilization(borrowed: number, available: number): number {
   return borrowed / (borrowed + available);
 }
 
-function tvl(borrowed: number, available: number, price: number): number{
+function tvl(borrowed: number, available: number, price: number): number {
   return (borrowed + available) * price;
 }
 
@@ -72,9 +71,16 @@ const fetchReserves = async (): Promise<mask[]> =>{
         return [];
       }
 
-      const RESERVE_AVAILABLE = available(DECODED_RESERVE.liquidity.availableAmount ?? 0, DECODED_RESERVE.liquidity.mintDecimals ?? 0);
-      const RESERVE_BORROWED = borrowed(DECODED_RESERVE.liquidity.borrowedAmountSf ?? 0);
-      const RESERVE_DECIMALS = DECODED_RESERVE.liquidity.mintDecimals ?? 0;
+      const RESERVE_AVAILABLE = available(
+        BigInt(String(DECODED_RESERVE.liquidity.availableAmount ?? 0)),
+        Number(DECODED_RESERVE.liquidity.mintDecimals ?? 0)
+      );
+      const RESERVE_BORROWED = borrowed(
+        BigInt(String(DECODED_RESERVE.liquidity.borrowedAmountSf ?? 0))
+      );
+      const RESERVE_MARKET_PRICE = Number(
+        BigInt(String(DECODED_RESERVE.liquidity.marketPriceSf ?? 0))
+      ) / 2 ** 60;
 
       console.log(DECODED_RESERVE);
 
@@ -92,7 +98,7 @@ const fetchReserves = async (): Promise<mask[]> =>{
             borrowed: RESERVE_BORROWED,
             available: RESERVE_AVAILABLE,
             utilization: utilization(RESERVE_BORROWED, RESERVE_AVAILABLE),
-            tvl: tvl(RESERVE_BORROWED, RESERVE_AVAILABLE, RESERVE_DECIMALS ), //<<< docelowo zamiast decimals ma być price
+            tvl: tvl(RESERVE_BORROWED, RESERVE_AVAILABLE, RESERVE_MARKET_PRICE),
           },
     }];
     }catch(error){
@@ -111,10 +117,10 @@ export default async function App(){
 
         <div key={reserve.pubkey}>
           <h2>Reserve {reserve.pubkey}</h2>
-          <p>Available Amount: {Number(reserve.liquidity.availableAmount)}</p>
-          <p>Available Amount: {reserve.metrics.available}</p>
-          <p>Borrowed Amount: {reserve.metrics.borrowed}</p>
-          <p>Utilization: {reserve.metrics.utilization}</p>
+          <p>Available Amount (normalized): {reserve.metrics.available.toFixed(6)}</p>
+          <p>Borrowed Amount (normalized): {reserve.metrics.borrowed.toFixed(6)}</p>
+          <p>Utilization: {(reserve.metrics.utilization * 100).toFixed(2)}%</p>
+          <p>TVL (quote units): {reserve.metrics.tvl.toFixed(6)}</p>
         </div>
 
       ))}
