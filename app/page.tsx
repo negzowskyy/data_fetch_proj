@@ -33,8 +33,8 @@ type mask = {
 
 // CALCULATION FUNCTIONS
 
-function borrowed(raw: bigint): number {
-  return Number(raw) / 2 ** 60 / 10 ** 8;
+function borrowed(raw: bigint, decimals: number): number {
+  return Number(raw) / 2 ** 60 / 10 ** decimals;
 }
 
 function available(raw: bigint, decimals: number): number {
@@ -76,7 +76,8 @@ const fetchReserves = async (): Promise<mask[]> =>{
         Number(DECODED_RESERVE.liquidity.mintDecimals ?? 0)
       );
       const RESERVE_BORROWED = borrowed(
-        BigInt(String(DECODED_RESERVE.liquidity.borrowedAmountSf ?? 0))
+        BigInt(String(DECODED_RESERVE.liquidity.borrowedAmountSf ?? 0)),
+        Number(DECODED_RESERVE.liquidity.mintDecimals ?? 0)
       );
       const RESERVE_MARKET_PRICE = Number(
         BigInt(String(DECODED_RESERVE.liquidity.marketPriceSf ?? 0))
