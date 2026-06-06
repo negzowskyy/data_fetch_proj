@@ -23,7 +23,6 @@ type MatchedTokens = {
 
 const KAMINO_DATA = await fetchReserves();
 const JUPLEND_DATA = await useJupLendData();
-
 const GET_KAMINO_SLOT = await getSlotForAPY();
 
 export default async function App() {
@@ -69,17 +68,74 @@ export default async function App() {
           }
         
         });
-
-        console.log(comparisonResults)
-
       }
     }
-  }
 
+  }
+  
   return (
-    <div>
-      <h1>Kamino Lend and JupLend Data comparison</h1>
-      <p>check the console for more information!</p>
+  <div style={{ 
+    padding: '30px', 
+    fontFamily: '"Segoe UI", Roboto, Helvetica, Arial, sans-serif', 
+    backgroundColor: '#0c0f14', 
+    color: '#f8fafc',
+    minHeight: '100vh' 
+  }}>
+    <h1 style={{ 
+      fontSize: '24px', 
+      fontWeight: '600', 
+      marginBottom: '24px', 
+      color: '#ffffff',
+      letterSpacing: '-0.5px'
+    }}>
+      Kamino Lend & JupLend Comparison
+    </h1>
+    
+    <div style={{ 
+      overflowX: 'auto', 
+      borderRadius: '12px', 
+      border: '1px solid #1e293b',
+      backgroundColor: '#111827'
+    }}>
+      <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+        <thead>
+          <tr style={{ backgroundColor: '#1f2937', borderBottom: '2px solid #374151' }}>
+            <th style={{ padding: '16px', fontWeight: '600', color: '#9ca3af' }}>Token</th>
+            <th style={{ padding: '16px', fontWeight: '600', color: '#38bdf8', textAlign: 'center' }} colSpan={3}>Kamino Lend</th>
+            <th style={{ padding: '16px', fontWeight: '600', color: '#a78bfa', textAlign: 'center' }} colSpan={3}>Jupiter Lend</th>
+          </tr>
+          <tr style={{ backgroundColor: '#111827', borderBottom: '1px solid #374151' }}>
+            <th></th>
+            {/* Kamino Headers */}
+            <th style={{ padding: '12px 16px', fontSize: '13px', color: '#6b7280', fontWeight: '500' }}>TVL</th>
+            <th style={{ padding: '12px 16px', fontSize: '13px', color: '#6b7280', fontWeight: '500' }}>Supply APY</th>
+            <th style={{ padding: '12px 16px', fontSize: '13px', color: '#6b7280', fontWeight: '500' }}>Borrow APY</th>
+            {/* Jupiter Headers */}
+            <th style={{ padding: '12px 16px', fontSize: '13px', color: '#6b7280', fontWeight: '500' }}>TVL</th>
+            <th style={{ padding: '12px 16px', fontSize: '13px', color: '#6b7280', fontWeight: '500' }}>Supply APY</th>
+            <th style={{ padding: '12px 16px', fontSize: '13px', color: '#6b7280', fontWeight: '500' }}>Borrow APY</th>
+          </tr>
+        </thead>
+        <tbody>
+          {comparisonResults.map((token, index) => (
+            <tr key={index} style={{ borderBottom: '1px solid #1e293b' }}>
+              {/* Symbol */}
+              <td style={{ padding: '16px', fontWeight: '600', color: '#ffffff' }}>{token.symbol}</td>
+              
+              {/* Kamino data */}
+              <td style={{ padding: '16px', color: '#e2e8f0' }}>${token.kaminoLeftSide.tvl.toLocaleString()}</td>
+              <td style={{ padding: '16px', color: '#34d399', fontWeight: '500' }}>{token.kaminoLeftSide.supplyAPY}%</td>
+              <td style={{ padding: '16px', color: '#f87171', fontWeight: '500' }}>{token.kaminoLeftSide.borrowAPY}%</td>
+              
+              {/* Jupiter data */}
+              <td style={{ padding: '16px', color: '#e2e8f0' }}>${token.juplendRightSide.tvl.toLocaleString()}</td>
+              <td style={{ padding: '16px', color: '#34d399', fontWeight: '500' }}>{token.juplendRightSide.supplyAPY}%</td>
+              <td style={{ padding: '16px', color: '#f87171', fontWeight: '500' }}>{token.juplendRightSide.borrowAPY}%</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
-  );
+  </div>
+);
 }
