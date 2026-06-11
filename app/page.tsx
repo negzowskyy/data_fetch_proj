@@ -1,10 +1,10 @@
-// imports 
+
 import { fetchReserves, getSlotForAPY, kaminoStandarizedTokens } from './kaminolend/kamino_lend';
 import { useJupLendData, new_error } from './juplend/hooks/useJupLendData';
 import { fetchSaveData } from  './save/useSaveData';
 import { KaminoReserve } from '@kamino-finance/klend-sdk';
 
-// metrics type
+
 type MatchedTokens = {
   symbol: string;
   kaminoLeftSide: {
@@ -30,7 +30,7 @@ type MatchedTokens = {
   };
 }
 
-// kamino's metrics calculations
+
 function kaminoTVL(token: KaminoReserve): number {
   return Number(token.getDepositTvl().toFixed(2));
 }
@@ -48,7 +48,7 @@ function kaminoSupplyAPY(token: KaminoReserve, slot: number): number {
 }
 
 
-// main function 
+
 export default async function App() {
   const KAMINO_DATA =     await fetchReserves();
   const JUPLEND_DATA =    await useJupLendData();
@@ -94,7 +94,7 @@ export default async function App() {
     }
   }
 
-  // FIXED MAPPER PROPERTIES
+ 
   const comparisonResults: MatchedTokens[] = await Promise.all(
     initialMatches.map(async (match) => {
       const saveData = await fetchSaveData(match.kaminoLeftSide.mintAddress);
@@ -103,9 +103,9 @@ export default async function App() {
         saveSide: {
           mintAddress: match.kaminoLeftSide.mintAddress,
           tvl:          saveData?.tvl || 0,
-          supplyAPY:    saveData?.supplyAPY || 0, // Fixed from .apy
+          supplyAPY:    saveData?.supplyAPY || 0,
           utilization:  saveData?.utilization || 0,
-          borrowRate:   saveData?.borrowRate || 0, // Fixed from .rate
+          borrowRate:   saveData?.borrowRate || 0,
         }
       };
     })
